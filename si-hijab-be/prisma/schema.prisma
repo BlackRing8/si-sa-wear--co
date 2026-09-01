@@ -377,7 +377,7 @@ model INFORMATION_STATUS {
 
 // Table log untuk mencatat aktivitas transaksi dan aktivitas user/admin
 
-model LOGS_TRANSACTION {
+model LOGS_TRANSACTION_USER {
   SZLOGID    String   @id @db.VarChar(50)
   SZLOGTYPE  String   @db.VarChar(50)
   SZLOGDESC  String?  @db.Text
@@ -385,7 +385,24 @@ model LOGS_TRANSACTION {
   CREATED_AT DateTime @default(now())
 }
 
-model LOGS_ACTIVITY {
+model LOGS_ACTIVITY_USER {
+  SZLOGID    String   @id @db.VarChar(50)
+  SZUSERID   String   @db.VarChar(50)
+  SZLOGDESC  String?  @db.Text
+  CREATED_AT DateTime @default(now())
+}
+
+// ------------- ---- //
+
+model LOGS_TRANSACTION_ADMIN {
+  SZLOGID    String   @id @db.VarChar(50)
+  SZLOGTYPE  String   @db.VarChar(50)
+  SZLOGDESC  String?  @db.Text
+  SZLOGDATA  String?  @db.Text
+  CREATED_AT DateTime @default(now())
+}
+
+model LOGS_ACTIVITY_ADMIN {
   SZLOGID    String   @id @db.VarChar(50)
   SZUSERID   String   @db.VarChar(50)
   SZLOGDESC  String?  @db.Text
