@@ -1,0 +1,54 @@
+/*
+  Warnings:
+
+  - You are about to drop the `logs_activity` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the `logs_transaction` table. If the table is not empty, all the data it contains will be lost.
+
+*/
+-- DropTable
+DROP TABLE `logs_activity`;
+
+-- DropTable
+DROP TABLE `logs_transaction`;
+
+-- CreateTable
+CREATE TABLE `LOGS_TRANSACTION_USER` (
+    `SZLOGID` VARCHAR(50) NOT NULL,
+    `SZLOGTYPE` VARCHAR(50) NOT NULL,
+    `SZLOGDESC` TEXT NULL,
+    `SZLOGDATA` TEXT NULL,
+    `CREATED_AT` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`SZLOGID`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `LOGS_ACTIVITY_USER` (
+    `SZLOGID` VARCHAR(50) NOT NULL,
+    `SZUSERID` VARCHAR(50) NOT NULL,
+    `SZLOGDESC` TEXT NULL,
+    `CREATED_AT` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`SZLOGID`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `LOGS_TRANSACTION_ADMIN` (
+    `SZLOGID` VARCHAR(50) NOT NULL,
+    `SZLOGTYPE` VARCHAR(50) NOT NULL,
+    `SZLOGDESC` TEXT NULL,
+    `SZLOGDATA` TEXT NULL,
+    `CREATED_AT` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`SZLOGID`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `LOGS_ACTIVITY_ADMIN` (
+    `SZLOGID` VARCHAR(50) NOT NULL,
+    `SZUSERID` VARCHAR(50) NOT NULL,
+    `SZLOGDESC` TEXT NULL,
+    `CREATED_AT` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`SZLOGID`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

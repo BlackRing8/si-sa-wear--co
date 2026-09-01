@@ -1,0 +1,410 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider     = "mysql"
+  relationMode = "foreignKeys"
+}
+
+// ADMIN TABLE
+
+enum AdminRole {
+  staff
+  super_admin
+}
+
+model ADMIN_MASTER {
+  ADMIN_ID       String    @id @db.VarChar(25)
+  ADMIN_EMAIL    String    @unique @db.VarChar(200)
+  ADMIN_NAME     String?
+  ADMIN_PASSWORD String
+  ADMIN_STATUS   Int       @db.TinyInt
+  ADMIN_ROLE     AdminRole @default(staff)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ADMIN_MASTER")
+}
+
+// -------------------------- //
+
+model USER_MASTER {
+  USER_ID          String  @id @db.VarChar(25)
+  USER_EMAIL       String  @unique @db.VarChar(200)
+  USER_NAME        String?
+  USER_PASSWORD    String
+  USER_STATUS      Int     @db.TinyInt
+  USER_PHONENUMBER String? @unique @db.VarChar(20)
+
+  USER_POINT Int? @default(0)
+
+  USER_ADDRESSES USER_ADDRESS[] @relation("UserAddresses")
+
+  ORDERS ORDER[]
+  CART   CART?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("USER_MASTER")
+}
+
+model USER_ADDRESS {
+  ADDRESS_ID       Int    @id @default(autoincrement())
+  ADDRESS_STREET   String
+  ADDRESS_CITY     String
+  ADDRESS_DESC     String
+  ADDRESS_POSTCODE String
+  ADDRESS_STATUS   Int    @db.TinyInt
+
+  USER_ID String @db.VarChar(25)
+
+  ADDRESS_USER USER_MASTER @relation("UserAddresses", fields: [USER_ID], references: [USER_ID])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([USER_ID])
+  @@map("USER_ADDRESS")
+}
+
+model PRODUCT_MASTER {
+  PRODUCT_ID   Int     @id @default(autoincrement())
+  PRODUCT_NAME String
+  PRODUCT_SLUG String  @unique @db.VarChar(250)
+  PRODUCT_DESC String? @db.Text
+
+  PRODUCT_STATUS Int      @db.TinyInt
+  CREATED_AT     DateTime @default(now())
+  UPDATED_AT     DateTime @updatedAt
+
+  VARIANTS   PRODUCT_VARIANT[]  @relation("ProductVariants")
+  IMAGES     PRODUCT_IMAGE[]
+  CATEGORIES PRODUCT_CATEGORY[]
+
+  @@map("PRODUCT_MASTER")
+}
+
+model PRODUCT_VARIANT {
+  PRODUCT_VARIANT_ID Int  @id @default(autoincrement())
+  PRODUCT_ID         Int
+  SIZE_ID            Int?
+  COLOR_ID           Int?
+
+  SKU           String   @unique @db.VarChar(100)
+  PRICE         Decimal  @db.Decimal(15, 2)
+  COMPARE_PRICE Decimal? @db.Decimal(15, 2)
+
+  STATUS Int @db.TinyInt
+
+  PRODUCT_MASTER PRODUCT_MASTER @relation("ProductVariants", fields: [PRODUCT_ID], references: [PRODUCT_ID])
+  SIZE           SIZE?          @relation(fields: [SIZE_ID], references: [SIZE_ID])
+  COLOR          COLOR?         @relation(fields: [COLOR_ID], references: [COLOR_ID])
+
+  INVENTORY              INVENTORY?
+  INVENTORY_TRANSACTIONS INVENTORY_TRANSACTION[]
+  CART_ITEMS             CART_ITEM[]
+  ORDER_ITEMS            ORDER_ITEM[]
+
+  @@index([PRODUCT_ID])
+  @@index([SIZE_ID])
+  @@index([COLOR_ID])
+  @@map("PRODUCT_VARIANT")
+}
+
+model SIZE {
+  SIZE_ID    Int    @id @default(autoincrement())
+  SIZE_NAME  String @db.VarChar(50)
+  SIZE_ORDER Int    @default(0)
+  STATUS     Int    @db.TinyInt
+
+  VARIANTS PRODUCT_VARIANT[]
+
+  @@map("SIZE")
+}
+
+model COLOR {
+  COLOR_ID   Int     @id @default(autoincrement())
+  COLOR_NAME String  @db.VarChar(50)
+  COLOR_CODE String? @db.VarChar(20)
+  STATUS     Int     @db.TinyInt
+
+  VARIANTS PRODUCT_VARIANT[]
+
+  @@map("COLOR")
+}
+
+model INVENTORY {
+  INVENTORY_ID Int @id @default(autoincrement())
+
+  VARIANT_ID Int @unique
+
+  STOCK    Int @default(0)
+  RESERVED Int @default(0)
+
+  VARIANT PRODUCT_VARIANT @relation(fields: [VARIANT_ID], references: [PRODUCT_VARIANT_ID])
+
+  @@map("INVENTORY")
+}
+
+model CART {
+  CART_ID Int @id @default(autoincrement())
+
+  USER_ID String @unique @db.VarChar(25)
+
+  CREATED_AT DateTime @default(now())
+  UPDATED_AT DateTime @updatedAt
+
+  ITEMS CART_ITEM[]
+  USER  USER_MASTER @relation(fields: [USER_ID], references: [USER_ID])
+
+  @@map("CART")
+}
+
+model CART_ITEM {
+  CART_ITEM_ID Int @id @default(autoincrement())
+
+  CART_ID    Int
+  VARIANT_ID Int
+
+  QUANTITY Int
+
+  CART CART @relation(fields: [CART_ID], references: [CART_ID])
+
+  VARIANT PRODUCT_VARIANT @relation(fields: [VARIANT_ID], references: [PRODUCT_VARIANT_ID])
+
+  @@unique([CART_ID, VARIANT_ID])
+  @@map("CART_ITEM")
+}
+
+enum OrderStatus {
+  pending
+  waiting_payment
+  paid
+  processing
+  shipped
+  delivered
+  completed
+  cancelled
+  expired
+}
+
+model ORDER {
+  ORDER_ID Int @id @default(autoincrement())
+
+  USER_ID String @db.VarChar(25)
+
+  ORDER_NUMBER String @unique @db.VarChar(50)
+
+  // Snapshot alamat saat checkout
+  SHIPPING_NAME     String  @db.VarChar(150)
+  SHIPPING_STREET   String  @db.VarChar(255)
+  SHIPPING_CITY     String  @db.VarChar(100)
+  SHIPPING_DESC     String? @db.Text
+  SHIPPING_POSTCODE String  @db.VarChar(10)
+
+  SUBTOTAL      Decimal @db.Decimal(15, 2)
+  SHIPPING_COST Decimal @db.Decimal(15, 2)
+  DISCOUNT      Decimal @db.Decimal(15, 2)
+  GRAND_TOTAL   Decimal @db.Decimal(15, 2)
+
+  STATUS  OrderStatus @default(pending)
+  PAYMENT PAYMENT[]
+
+  SHIPPING_TRACKING_NUMBER String?
+
+  CREATED_AT DateTime @default(now())
+  UPDATED_AT DateTime @updatedAt
+
+  USER USER_MASTER @relation(fields: [USER_ID], references: [USER_ID])
+
+  ITEMS ORDER_ITEM[]
+
+  @@index([USER_ID])
+  @@map("ORDER")
+}
+
+model ORDER_ITEM {
+  ORDER_ITEM_ID Int @id @default(autoincrement())
+
+  ORDER_ID   Int
+  VARIANT_ID Int
+
+  PRODUCT_NAME String @db.VarChar(200)
+  SKU          String @db.VarChar(100)
+
+  PRICE    Decimal @db.Decimal(15, 2)
+  QUANTITY Int
+  SUBTOTAL Decimal @db.Decimal(15, 2)
+
+  ORDER ORDER @relation(fields: [ORDER_ID], references: [ORDER_ID])
+
+  VARIANT PRODUCT_VARIANT @relation(fields: [VARIANT_ID], references: [PRODUCT_VARIANT_ID])
+
+  @@index([ORDER_ID])
+  @@index([VARIANT_ID])
+  @@map("ORDER_ITEM")
+}
+
+enum PaymentStatus {
+  pending
+  processing
+  paid
+  failed
+  expired
+  cancelled
+  refunded
+}
+
+enum PaymentMethod {
+  bank_transfer
+  qris
+  e_wallet
+  cod
+}
+
+model PAYMENT {
+  PAYMENT_ID Int @id @default(autoincrement())
+
+  ORDER_ID Int
+
+  PAYMENT_METHOD PaymentMethod
+  PAYMENT_STATUS PaymentStatus @default(pending)
+
+  PAYMENT_AMOUNT Decimal @db.Decimal(15, 2)
+
+  PAYMENT_REFERENCE String? @db.VarChar(150)
+
+  PAID_AT DateTime?
+
+  EXPIRED_AT DateTime?
+
+  CREATED_AT DateTime @default(now())
+  UPDATED_AT DateTime @updatedAt
+
+  ORDER ORDER @relation(fields: [ORDER_ID], references: [ORDER_ID])
+
+  @@index([PAYMENT_STATUS])
+  @@index([PAYMENT_REFERENCE])
+  @@map("PAYMENT")
+}
+
+model CATEGORY {
+  CATEGORY_ID Int @id @default(autoincrement())
+
+  CATEGORY_NAME String @db.VarChar(100)
+  CATEGORY_SLUG String @unique @db.VarChar(150)
+
+  STATUS Int @db.TinyInt
+
+  PRODUCTS PRODUCT_CATEGORY[]
+
+  @@map("CATEGORY")
+}
+
+model PRODUCT_CATEGORY {
+  PRODUCT_ID  Int
+  CATEGORY_ID Int
+
+  PRODUCT_MASTER PRODUCT_MASTER @relation(fields: [PRODUCT_ID], references: [PRODUCT_ID])
+
+  CATEGORY CATEGORY @relation(fields: [CATEGORY_ID], references: [CATEGORY_ID])
+
+  @@id([PRODUCT_ID, CATEGORY_ID])
+  @@map("PRODUCT_CATEGORY")
+}
+
+model PRODUCT_IMAGE {
+  IMAGE_ID Int @id @default(autoincrement())
+
+  PRODUCT_ID Int
+
+  IMAGE_URL  String  @db.VarChar(500)
+  SORT_ORDER Int     @default(0)
+  IS_PRIMARY Boolean @default(false)
+
+  PRODUCT_MASTER PRODUCT_MASTER @relation(fields: [PRODUCT_ID], references: [PRODUCT_ID])
+
+  @@index([PRODUCT_ID])
+  @@map("PRODUCT_IMAGE")
+}
+
+enum InventoryTransactionType {
+  restock
+  reserve
+  release
+  sale
+  return
+  adjustment
+}
+
+model INVENTORY_TRANSACTION {
+  INVENTORY_TRANSACTION_ID Int @id @default(autoincrement())
+
+  VARIANT_ID Int
+
+  TYPE     InventoryTransactionType
+  QUANTITY Int
+
+  REFERENCE String? @db.VarChar(100)
+  NOTE      String? @db.VarChar(255)
+
+  CREATED_AT DateTime @default(now())
+
+  PRODUCT_VARIANT PRODUCT_VARIANT @relation(fields: [VARIANT_ID], references: [PRODUCT_VARIANT_ID])
+
+  @@index([VARIANT_ID])
+  @@index([TYPE])
+  @@map("INVENTORY_TRANSACTION")
+}
+
+model INFORMATION_STATUS {
+  STATUS_ID Int @id @default(autoincrement())
+
+  TABLE_NAME   String @db.VarChar(100)
+  STATUS_VALUE String @db.VarChar(50)
+
+  STATUS_DESC String? @db.Text
+
+  @@map("INFORMATION_STATUS")
+}
+
+// Table log untuk mencatat aktivitas transaksi dan aktivitas user/admin
+
+model LOGS_TRANSACTION_USER {
+  SZLOGID    String   @id @db.VarChar(50)
+  SZLOGTYPE  String   @db.VarChar(50)
+  SZLOGDESC  String?  @db.Text
+  SZLOGDATA  String?  @db.Text
+  CREATED_AT DateTime @default(now())
+}
+
+model LOGS_ACTIVITY_USER {
+  SZLOGID    String   @id @db.VarChar(50)
+  SZUSERID   String   @db.VarChar(50)
+  SZLOGDESC  String?  @db.Text
+  CREATED_AT DateTime @default(now())
+}
+
+// ------------- ---- //
+
+model LOGS_TRANSACTION_ADMIN {
+  SZLOGID    String   @id @db.VarChar(50)
+  SZLOGTYPE  String   @db.VarChar(50)
+  SZLOGDESC  String?  @db.Text
+  SZLOGDATA  String?  @db.Text
+  CREATED_AT DateTime @default(now())
+}
+
+model LOGS_ACTIVITY_ADMIN {
+  SZLOGID    String   @id @db.VarChar(50)
+  SZUSERID   String   @db.VarChar(50)
+  SZLOGDESC  String?  @db.Text
+  CREATED_AT DateTime @default(now())
+}
