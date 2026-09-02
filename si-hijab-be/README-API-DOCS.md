@@ -9,11 +9,6 @@ Backend menggunakan:
 - NestJS
 - Prisma ORM
 - MySQL
-- JWT untuk autentikasi
-- DTO untuk validasi request
-- NanoID untuk membantu generate `USER_ID`
-
-> Catatan: contoh response di bawah menggambarkan struktur API yang sudah kita bahas. Sesuaikan nama endpoint/field jika implementasi aktual di controller berbeda.
 
 ---
 
@@ -32,24 +27,24 @@ POST /auth/register
 ```json
 {
   "USER_EMAIL": "user@example.com",
-  "USER_NAME": "Gilang",
-  "USER_PASSWORD": "Password123!",
+  "USER_NAME": "user name example",
+  "USER_PASSWORD": "Passwordkali",
   "USER_PHONENUMBER": "081234567890"
 }
 ```
 
 ### Penjelasan Request
 
-| Field | Tipe | Wajib | Keterangan |
-|---|---|---:|---|
-| `USER_EMAIL` | string | Ya | Email user, harus unik |
-| `USER_NAME` | string | Tidak | Nama user |
-| `USER_PASSWORD` | string | Ya | Password user |
+| Field              | Tipe   | Wajib | Keterangan                           |
+| ------------------ | ------ | ----: | ------------------------------------ |
+| `USER_EMAIL`       | string |    Ya | Email user, harus unik               |
+| `USER_NAME`        | string | Tidak | Nama user                            |
+| `USER_PASSWORD`    | string |    Ya | Password user                        |
 | `USER_PHONENUMBER` | string | Tidak | Nomor telepon, harus unik jika diisi |
 
 `USER_ID` **tidak dikirim dari client**.
 
-Backend membuat `USER_ID` menggunakan `UserIdService`.
+Backend membuat `USER_ID`.
 
 Format yang digunakan:
 
@@ -62,7 +57,7 @@ Dengan panjang maksimal 25 karakter.
 Contoh:
 
 ```text
-USR09267Kx9mP2Qa8Tn4Lc7
+USR092678716257
 ```
 
 ### Proses Backend
@@ -118,7 +113,7 @@ HTTP `409 Conflict`
 ```json
 {
   "statusCode": 409,
-  "message": "Email sudah terdaftar",
+  "message": "Data user sudah terdaftar",
   "error": "Conflict"
 }
 ```
@@ -140,7 +135,7 @@ POST /auth/login
 ```json
 {
   "USER_EMAIL": "user@example.com",
-  "USER_PASSWORD": "Password123!"
+  "USER_PASSWORD": "Passwordcontohdoank"
 }
 ```
 
@@ -314,9 +309,7 @@ Contoh:
 ```json
 {
   "statusCode": 400,
-  "message": [
-    "USER_EMAIL must be an email"
-  ],
+  "message": ["USER_EMAIL must be an email"],
   "error": "Bad Request"
 }
 ```
@@ -480,48 +473,15 @@ async onModuleDestroy() {
 Service lain dapat menggunakan:
 
 ```ts
-this.prisma.uSER_MASTER
-this.prisma.pRODUCT_MASTER
+this.prisma.uSER_MASTER;
+this.prisma.pRODUCT_MASTER;
 ```
 
 untuk berinteraksi dengan database.
 
 ---
 
-# 10. User ID
-
-User ID tidak menggunakan auto increment.
-
-Format:
-
-```text
-USRMMYY + NanoID
-```
-
-Contoh:
-
-```text
-USR09267Kx9mP2Qa8Tn4Lc7
-```
-
-Maksimal:
-
-```text
-25 karakter
-```
-
-Keuntungan:
-
-- Tidak membutuhkan query `MAX()`
-- Tidak membutuhkan counter table
-- Ringan diproses
-- Memiliki informasi bulan dan tahun pembuatan
-- NanoID memberikan ruang kombinasi yang sangat besar
-- Primary key database tetap menjadi perlindungan terakhir terhadap duplicate
-
----
-
-# 11. Catatan Arsitektur
+# 10. Catatan Arsitektur
 
 Project saat ini memisahkan area user dan admin.
 
@@ -546,9 +506,9 @@ Hal ini memungkinkan authentication dan authorization user/admin berkembang seca
 
 ---
 
-# 12. Status Implementasi
+# 11. Status Implementasi
 
-Fitur yang sudah dibahas:
+Fitur yang sudah diproses:
 
 - [x] Prisma + MySQL
 - [x] USER_MASTER
@@ -567,20 +527,6 @@ Fitur yang sudah dibahas:
 - [x] Inventory relation
 - [x] Duplicate handling dengan Prisma `P2002`
 
-Fitur ecommerce berikutnya dapat dikembangkan dari:
+```
 
-```text
-Product
-  ↓
-Cart
-  ↓
-Checkout
-  ↓
-Order
-  ↓
-Payment
-  ↓
-Inventory
-  ↓
-Shipping
 ```
