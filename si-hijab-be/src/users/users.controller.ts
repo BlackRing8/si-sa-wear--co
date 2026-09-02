@@ -1,3 +1,9 @@
+/* Tanggal|Ver|dev|desc
+
+1. 31-08-26 | 1.0.0 | Gilang | Initial commit  
+
+*/
+
 import { Body, Controller, Post } from '@nestjs/common';
 
 import { UsersService } from './users.service';

@@ -1,3 +1,9 @@
+/* Tanggal|Ver|dev|desc
+
+1. 31-08-26 | 1.0.0 | Gilang | Initial commit  
+
+*/
+
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
