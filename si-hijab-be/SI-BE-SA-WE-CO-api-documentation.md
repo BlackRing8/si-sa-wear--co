@@ -40,11 +40,11 @@ POST /auth/register
 
 ### Penjelasan Request
 
-| Field              | Tipe   | Wajib | Keterangan                           |
-| ------------------ | ------ | ----: | ------------------------------------ |
-| `USER_EMAIL`       | string |    Ya | Email user, harus unik               |
-| `USER_NAME`        | string | Tidak | Nama user                            |
-| `USER_PASSWORD`    | string |    Ya | Password user                        |
+| Field | Tipe | Wajib | Keterangan |
+|---|---|---:|---|
+| `USER_EMAIL` | string | Ya | Email user, harus unik |
+| `USER_NAME` | string | Tidak | Nama user |
+| `USER_PASSWORD` | string | Ya | Password user |
 | `USER_PHONENUMBER` | string | Tidak | Nomor telepon, harus unik jika diisi |
 
 `USER_ID` **tidak dikirim dari client**.
@@ -314,7 +314,9 @@ Contoh:
 ```json
 {
   "statusCode": 400,
-  "message": ["USER_EMAIL must be an email"],
+  "message": [
+    "USER_EMAIL must be an email"
+  ],
   "error": "Bad Request"
 }
 ```
@@ -478,8 +480,8 @@ async onModuleDestroy() {
 Service lain dapat menggunakan:
 
 ```ts
-this.prisma.uSER_MASTER;
-this.prisma.pRODUCT_MASTER;
+this.prisma.uSER_MASTER
+this.prisma.pRODUCT_MASTER
 ```
 
 untuk berinteraksi dengan database.
