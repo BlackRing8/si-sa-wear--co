@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,6 +7,12 @@ datasource db {
   provider     = "mysql"
   relationMode = "foreignKeys"
 }
+
+/* Tanggal|Ver|dev|desc
+
+31-08-26 | 1.0.0 | Gilang | Initial commit first architecture database 
+
+*/
 
 // ADMIN TABLE
 

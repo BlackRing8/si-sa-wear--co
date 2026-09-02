@@ -1,4 +1,8 @@
-// Untuk Pembentukan User ID -- Version 1.0.0
+/* Tanggal|Ver|dev|desc
+
+31-08-26 | 1.0.0 | Gilang | Initial commit 
+
+*/
 
 import { Injectable } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';

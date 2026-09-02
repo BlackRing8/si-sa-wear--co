@@ -1,8 +1,9 @@
-/*
-  Version- dev:     
-  1.0.0    Gilang - arsitektur awal
+/* Tanggal|Ver|dev|desc
+
+1. 31-08-26 | 1.0.0 | Gilang | Initial commit  
 
 */
+
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
